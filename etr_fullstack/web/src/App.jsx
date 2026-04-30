@@ -634,7 +634,7 @@ export default function App() {
         </div>
 
         <div className="title-stack">
-          <div className="eyebrow">ISTE BITS PRESENTS TRIVENI&apos;26</div>
+          <div className="eyebrow">ISTE BITSINDRI PRESENTS TRIVENI&apos;26</div>
           <h1>ESCAPE THE ROOM</h1>
           <div className="title-rule" />
         </div>
