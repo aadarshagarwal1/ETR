@@ -559,7 +559,7 @@ export default function App() {
       const formData = new FormData();
       formData.append("file", blob, "escape-room-scan.jpg");
 
-      const response = await fetch(PREDICT_ENDPOINT, { 
+      const response = await fetch(PREDICT_ENDPOINT + "/predict", { 
         method: "POST", 
         body: formData,
         signal: AbortSignal.timeout(120000) // 2 min timeout for slow Render instances
