@@ -13,7 +13,7 @@ app = FastAPI(title="Triveni '26 Endurance Terminal")
 APP_ROOT = Path(__file__).resolve().parent
 # We save our custom weights here
 MODEL_PATH = APP_ROOT / "triveni_dice_model.pt"
-DATASET_PATH = "C:/Users/anami/OneDrive/Desktop/my project/ETR/etr_fullstack/api/dataset/train"
+DATASET_PATH = "C:/Users/anami/OneDrive/Desktop/my project/ETR/etr_fullstack/api/dataset"
 
 # --- TEAM CODES ---
 # These match the folder names in your dataset
@@ -44,7 +44,7 @@ async def train_model():
             data=DATASET_PATH, 
             epochs=25, 
             imgsz=224, 
-            device=0  # Uses your Asus TUF NVIDIA GPU
+            device="cpu" # Uses your Asus TUF NVIDIA GPU
         )
         # Export the trained model to our permanent path
         MODEL.export(format="pt")
