@@ -7,31 +7,15 @@ const PREDICT_ENDPOINT = import.meta.env.VITE_API_URL || "http://localhost:8000"
 
 const TARS_MAP = {
   idle: [
-    {
-      tag: "TARS",
-      tone: "tars",
-      text: "Operator present. Optical bay holding at passive acquisition.",
-    },
+    { tag: "TARS", tone: "tars", text: "Operator present. Optical bay holding at passive acquisition." },
     { tag: "SCAN", tone: "scan", text: "Frame sequencer armed. Awaiting manual scan command." },
     { tag: "TARS", tone: "tars", text: "Triveni chamber telemetry routed through local console." },
     { tag: "SCAN", tone: "scan", text: "Target datum centered. Square crop buffer standing by." },
   ],
   scanning: [
-    {
-      tag: "SCAN",
-      tone: "scan",
-      text: "Vertical sweep engaged. Five second exposure window open.",
-    },
-    {
-      tag: "TARS",
-      tone: "tars",
-      text: "Keep subject inside etched boundary. Do not translate frame.",
-    },
-    {
-      tag: "WARN",
-      tone: "warn",
-      text: "Active illumination. Glare rejection reduced until sweep completes.",
-    },
+    { tag: "SCAN", tone: "scan", text: "Vertical sweep engaged. Five second exposure window open." },
+    { tag: "TARS", tone: "tars", text: "Keep subject inside etched boundary. Do not translate frame." },
+    { tag: "WARN", tone: "warn", text: "Active illumination. Glare rejection reduced until sweep completes." },
     { tag: "SCAN", tone: "scan", text: "CMOS buffer sampling. Laser bar crossing central datum." },
   ],
   transmitting: [
@@ -40,30 +24,14 @@ const TARS_MAP = {
     { tag: "SCAN", tone: "scan", text: "Awaiting response from chamber compute node." },
   ],
   complete: [
-    {
-      tag: "SCAN",
-      tone: "scan",
-      text: "Classifier telemetry received. Result latched to mission clock.",
-    },
-    {
-      tag: "TARS",
-      tone: "tars",
-      text: "Optical bay returned to passive watch. Next scan authorized.",
-    },
+    { tag: "SCAN", tone: "scan", text: "Classifier telemetry received. Result latched to mission clock." },
+    { tag: "TARS", tone: "tars", text: "Optical bay returned to passive watch. Next scan authorized." },
     { tag: "SCAN", tone: "scan", text: "Frame buffer cleared. Scan archive marker committed." },
   ],
   error: [
     { tag: "WARN", tone: "warn", text: "Prediction uplink rejected, blocked, or unavailable." },
-    {
-      tag: "TARS",
-      tone: "tars",
-      text: "Verify Python service at localhost:5000 and repeat acquisition.",
-    },
-    {
-      tag: "WARN",
-      tone: "warn",
-      text: "No classification written. Console remains in safe optical mode.",
-    },
+    { tag: "TARS", tone: "tars", text: "Verify Python service at localhost:5000 and repeat acquisition." },
+    { tag: "WARN", tone: "warn", text: "No classification written. Console remains in safe optical mode." },
   ],
 };
 
@@ -94,31 +62,14 @@ const appStyles = `
 
   .escape-room-app, .escape-room-app * { box-sizing: border-box; }
 
-  .escape-room-app {
-    height: 100vh; /* FIX: Changed from min-height to lock it to your laptop screen */
-    display: flex; /* FIX: Added flex to manage the internal layout smoothly */
-    flex-direction: column; /* FIX */
-    overflow: hidden;
-    position: relative;
-    color: var(--etr-text);
-    background:
-      linear-gradient(rgba(255, 190, 91, 0.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 190, 91, 0.032) 1px, transparent 1px),
-      var(--etr-black);
-    background-size: 54px 54px, 54px 54px, auto;
-    background-attachment: fixed;
-    font-family: var(--etr-font-mono);
-    letter-spacing: 0;
-  }
-
-  .escape-room-app::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    background: repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 4px);
-    opacity: 0.22;
-    mix-blend-mode: screen;
+  /* Nuke scrolling completely on the document level */
+  html, body, #root {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden !important;
+    background-color: var(--etr-black);
   }
 
   .er-header {
@@ -130,7 +81,7 @@ const appStyles = `
     padding: clamp(1rem, 2.2vw, 1.55rem) clamp(0.9rem, 3vw, 2.4rem) 0.9rem;
     border-bottom: 1px solid var(--etr-line);
     background: linear-gradient(180deg, rgba(20, 15, 9, 0.94), rgba(3, 3, 3, 0.58));
-    flex-shrink: 0; /* FIX: Prevents the header from squishing */
+    flex-shrink: 0;
   }
 
   .brand-cell { display: flex; align-items: center; }
@@ -194,9 +145,9 @@ const appStyles = `
       "telemetry scanner clock"
       "terminal scanner diagnostics";
     gap: clamp(0.72rem, 1.45vw, 1.05rem);
-    flex: 1; /* FIX: Takes up the rest of the screen below the header */
-    min-height: 0; /* FIX: Prevents the grid from pushing out of the window */
-    overflow: hidden; /* FIX: Stops the whole page from scrolling */
+    flex: 1; 
+    min-height: 0;
+    overflow: hidden; /* Lock the grid */
     padding: clamp(0.75rem, 1.45vw, 1.1rem) clamp(0.75rem, 2vw, 1.5rem) 1rem;
   }
 
@@ -205,6 +156,8 @@ const appStyles = `
     border: 1px solid var(--etr-line);
     background: linear-gradient(145deg, var(--etr-panel-hard), var(--etr-panel));
     box-shadow: inset 0 1px 0 rgba(255, 206, 126, 0.09);
+    display: flex;
+    flex-direction: column;
   }
 
   .panel::before, .scanner-frame::before {
@@ -258,26 +211,24 @@ const appStyles = `
   .scanner-section {
     grid-area: scanner;
     min-width: 0;
-    display: grid;
-    grid-template-rows: 1fr auto;
-    gap: 0.85rem;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    overflow-y: auto; /* FIX: Only this center column will scroll if needed */
-    padding-bottom: 1rem; /* FIX: Gives the button breathing room */
+    justify-content: flex-start; /* Keep everything pushed up */
+    gap: 1.2rem; /* Creates perfect space between camera and button */
   }
 
   .scanner-frame {
-    width: min(100%, calc(100vh - 13.25rem));
-    max-width: 44rem;
-    min-width: min(100%, 19rem);
+    width: min(100%, 30rem);
+    max-height: 38vh; /* FIX: Strictly limits camera height so button always fits */
     aspect-ratio: 1;
-    max-height: 40vh; /* FIX: This physically stops the camera from getting too tall */
-    justify-self: center;
     position: relative;
     overflow: hidden;
     border: 1px solid var(--etr-line-hard);
     background: #050505;
     clip-path: polygon(5% 0, 95% 0, 100% 5%, 100% 95%, 95% 100%, 5% 100%, 0 95%, 0 5%);
+    flex-shrink: 1;
   }
 
   .scanner-frame.active {
@@ -338,13 +289,20 @@ const appStyles = `
     animation: sweep 5s linear forwards;
   }
 
+  /* Scan Control Container */
+  .scan-control-wrapper {
+    width: 100%;
+    max-width: 30rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
   .scan-control-row {
-    justify-self: center;
     display: grid;
-    grid-template-columns: minmax(11rem, auto) minmax(7.5rem, auto);
+    grid-template-columns: minmax(11rem, 1fr) 7.5rem;
     gap: 0.7rem;
     align-items: stretch;
-    width: min(100%, 31rem);
   }
 
   .scan-button, .timer-readout {
@@ -404,8 +362,7 @@ const appStyles = `
   .clock-grid b, .diagnostic-grid b { color: var(--etr-text); font-size: 0.72rem; }
 
   .terminal-lines {
-    height: calc(100% - 2.8rem);
-    min-height: 9rem;
+    flex: 1; /* Fills remaining space in panel cleanly */
     overflow-y: auto;
     padding: 0.85rem 0.95rem 1rem;
     scrollbar-width: thin;
@@ -432,19 +389,16 @@ const appStyles = `
   @keyframes hardPulse { 0%, 100% { border-color: var(--etr-line-hard); } 50% { border-color: var(--etr-amber-bright); } }
 
   @media (max-width: 980px) {
-    .escape-room-app { overflow: auto; }
+    html, body, #root, .escape-room-app { overflow: auto !important; height: auto !important; min-height: 100vh; }
     .er-header { grid-template-columns: 5.8rem 1fr 5.8rem; min-height: 7.5rem; }
     .logo-module { width: 5.2rem; }
     .er-layout {
-      height: auto;
-      min-height: 0;
       grid-template-columns: 1fr 1fr;
       grid-template-areas:
         "scanner scanner"
         "telemetry clock"
         "terminal diagnostics";
     }
-    .scanner-frame { width: min(100%, 34rem); }
   }
 
   @media (max-width: 640px) {
@@ -453,7 +407,6 @@ const appStyles = `
     .brand-cell.right { order: 3; }
     .title-stack { order: 2; }
     .er-layout { grid-template-columns: 1fr; grid-template-areas: "scanner" "telemetry" "clock" "terminal" "diagnostics"; }
-    .scan-control-row { grid-template-columns: 1fr; }
   }
 `;
 
@@ -486,6 +439,8 @@ export default function App() {
   const streamRef = useRef(null);
   const intervalRef = useRef(null);
   const timeoutRef = useRef(null);
+  const terminalRef = useRef(null); // Used to auto-scroll the TARS logs
+
   const [clock, setClock] = useState(null);
   const [phase, setPhase] = useState("idle");
   const [remaining, setRemaining] = useState(5);
@@ -533,11 +488,20 @@ export default function App() {
     };
   }, []);
 
+  // Update real-time clock every second
   useEffect(() => {
     setClock(new Date());
     const ticker = window.setInterval(() => setClock(new Date()), 1000);
     return () => window.clearInterval(ticker);
   }, []);
+
+  // Auto-scroll the terminal panel down when new logs appear
+  const logs = useMemo(() => TARS_MAP[phase] ?? TARS_MAP.idle, [phase]);
+  useEffect(() => {
+    if (terminalRef.current) {
+      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+    }
+  }, [logs]);
 
   const captureAndPredict = useCallback(async () => {
     const video = videoRef.current;
@@ -577,7 +541,7 @@ export default function App() {
       const response = await fetch(PREDICT_ENDPOINT + "/predict", { 
         method: "POST", 
         body: formData,
-        signal: AbortSignal.timeout(120000) // 2 min timeout for slow Render instances
+        signal: AbortSignal.timeout(120000) 
       });
       if (!response.ok) throw new Error(`Predict failed: ${response.status}`);
 
@@ -614,26 +578,30 @@ export default function App() {
     }, 5000);
   }, [captureAndPredict, isScanning]);
 
+  // FIX: Force IST (Asia/Kolkata) Timezone format
   const missionTime = clock
-    ? clock.toLocaleTimeString("en-GB", { hour12: false, timeZone: "UTC" })
+    ? clock.toLocaleTimeString("en-GB", { hour12: false, timeZone: "Asia/Kolkata" })
     : "--:--:--";
+  
   const missionDate = clock
     ? clock
         .toLocaleDateString("en-GB", {
-          timeZone: "UTC",
+          timeZone: "Asia/Kolkata",
           day: "2-digit",
           month: "short",
           year: "numeric",
         })
         .toUpperCase()
     : "-- --- ----";
-  const logs = useMemo(() => TARS_MAP[phase] ?? TARS_MAP.idle, [phase]);
 
   return (
-    <main className="h-screen w-screen overflow-hidden flex flex-col justify-between bg-black">
+    <main className="h-screen w-full flex flex-col justify-between bg-black overflow-hidden relative" style={{ backgroundImage: "linear-gradient(rgba(255, 190, 91, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 190, 91, 0.032) 1px, transparent 1px)", backgroundSize: "54px 54px" }}>
       <style>{appStyles}</style>
 
-      <header className="er-header">
+      {/* Grid overlay visual effect */}
+      <div className="absolute inset-0 pointer-events-none opacity-20 mix-blend-screen" style={{ background: "repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 4px)" }}></div>
+
+      <header className="er-header relative z-10">
         <div className="brand-cell">
           <div className="logo-module" aria-label="ISTE logo module">
             <img src={isteLogo} alt="ISTE BITS logo" />
@@ -653,7 +621,7 @@ export default function App() {
         </div>
       </header>
 
-      <section className="er-layout">
+      <section className="er-layout relative z-10">
         <aside className="panel telemetry-panel">
           <div className="panel-kicker">
             <span>TELEMETRY</span>
@@ -675,6 +643,7 @@ export default function App() {
           </div>
         </aside>
 
+        {/* FIX: Redesigned scanner section to permanently lock the button right below the camera */}
         <section className="scanner-section" aria-label="Central optical acquisition bay">
           <div className={isScanning ? "scanner-frame active" : "scanner-frame"}>
             <video
@@ -703,7 +672,7 @@ export default function App() {
             {isScanning && <div className="laser-bar" aria-hidden="true" />}
           </div>
 
-          <div>
+          <div className="scan-control-wrapper">
             <div className="scan-control-row">
               <button
                 className="scan-button"
@@ -730,7 +699,8 @@ export default function App() {
         <aside className="panel clock-panel">
           <div className="panel-kicker">
             <span>MISSION CLOCK</span>
-            <span>UTC</span>
+            {/* FIX: Label updated from UTC to IST */}
+            <span>IST</span> 
           </div>
           <div className="mission-time">{missionTime}</div>
           <div className="clock-grid">
@@ -754,7 +724,8 @@ export default function App() {
             <span>TARS TERMINAL</span>
             <span>SCROLL LOCK</span>
           </div>
-          <div className="terminal-lines" aria-live="polite">
+          {/* FIX: Terminal now scrolls internally so it doesn't break the locked screen layout */}
+          <div className="terminal-lines" aria-live="polite" ref={terminalRef}>
             {logs.map((line, index) => (
               <p className={`log-line tone-${line.tone}`} key={`${line.tag}-${index}`}>
                 <span>[{line.tag}]</span> {line.text}
