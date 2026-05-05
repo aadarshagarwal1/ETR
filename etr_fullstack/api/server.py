@@ -12,7 +12,7 @@ app = FastAPI(title="Triveni '26 Endurance Terminal")
 # --- PATHS ---
 APP_ROOT = Path(__file__).resolve().parent
 # We save our custom weights here
-MODEL_PATH = APP_ROOT / "triveni_dice_model.pt"
+MODEL_PATH = APP_ROOT / "etr_dice_model.pt"
 DATASET_PATH = "C:/Users/anami/OneDrive/Desktop/my project/ETR/etr_fullstack/api/dataset"
 
 # --- TEAM CODES ---
@@ -32,7 +32,7 @@ app.add_middleware(
 
 # Initialize with base classification model (wiping old object detection data)
 # This will be overwritten after you run the /train route
-MODEL = YOLO(str(MODEL_PATH)) if MODEL_PATH.exists() else YOLO("yolov8n-cls.pt")
+MODEL = YOLO(str(MODEL_PATH)) if MODEL_PATH.exists() else YOLO("etr_dice_model.pt")
 
 @app.get("/train")
 async def train_model():
