@@ -69,7 +69,7 @@ async def predict(file: UploadFile = File(...)) -> dict[str, Any]:
     class_name = results.names[top_class_idx].upper() 
     confidence = float(results.probs.top1conf)
 
-    if confidence > 0.75 and class_name in TEAM_CONFIG:
+    if confidence > 0.50 and class_name in TEAM_CONFIG:
         access_code = TEAM_CONFIG[class_name]
         terminal_msg = f"[TARS]: Target {class_name} Verified. Code: {access_code}"
     else:
