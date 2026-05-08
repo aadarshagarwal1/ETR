@@ -13,7 +13,7 @@ app = FastAPI(title="Triveni '26 Endurance Terminal")
 APP_ROOT = Path(__file__).resolve().parent
 # We save our custom weights here
 MODEL_PATH = APP_ROOT / "etr_dice_model.pt"
-DATASET_PATH = "C:/Users/anami/OneDrive/Desktop/my project/ETR/etr_fullstack/api/dataset"
+DATASET_PATH = APP_ROOT / "dataset"
 
 # --- TEAM CODES ---
 # These match the folder names in your dataset
@@ -69,7 +69,7 @@ async def predict(file: UploadFile = File(...)) -> dict[str, Any]:
     class_name = results.names[top_class_idx].upper() 
     confidence = float(results.probs.top1conf)
 
-    # 1. SUCCESS: Valid team AND high confidence
+    # 1. SUCCESS: Valid team AND high confidence (e.g., > 50%)
     if confidence > 0.50 and class_name in TEAM_CONFIG:
         return {
             "success": True,
@@ -79,16 +79,16 @@ async def predict(file: UploadFile = File(...)) -> dict[str, Any]:
             "result": TEAM_CONFIG[class_name]
         }
         
-    # 2. ERROR: It saw a random object, a hand, or a very low-confidence shadow
+    # 2. ERROR: It saw a random object, a hand, a coffee mug, or a low-confidence shadow
     else:
         return {
             "success": False, 
-            "team": "NONE", # <-- CRITICAL: This keeps the UI completely blank!
+            "team": "NONE", # <-- CRITICAL: This keeps the UI completely blank during errors!
             "access_code": "ERROR", 
-            "terminal": f"[TARS]: ERROR. Invalid artifact or low confidence ({int(confidence*100)}%).", 
+            "terminal": f"[TARS]: ERROR. Unauthorized object or low confidence ({int(confidence*100)}%).", 
             "result": "ERROR"
         }
-
+    
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
