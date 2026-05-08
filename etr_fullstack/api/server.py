@@ -69,20 +69,25 @@ async def predict(file: UploadFile = File(...)) -> dict[str, Any]:
     class_name = results.names[top_class_idx].upper() 
     confidence = float(results.probs.top1conf)
 
+    # 1. SUCCESS: Valid team AND high confidence
     if confidence > 0.50 and class_name in TEAM_CONFIG:
-        access_code = TEAM_CONFIG[class_name]
-        terminal_msg = f"[TARS]: Target {class_name} Verified. Code: {access_code}"
+        return {
+            "success": True,
+            "team": class_name,
+            "access_code": "GRANTED",
+            "terminal": f"[TARS]: Target {class_name} Verified. Code: {TEAM_CONFIG[class_name]}",
+            "result": TEAM_CONFIG[class_name]
+        }
+        
+    # 2. ERROR: It saw a random object, a hand, or a very low-confidence shadow
     else:
-        access_code = "DENIED"
-        terminal_msg = f"[TARS]: Visual confirmation failed. Match: {class_name} ({confidence*100:.0f}%)"
-
-    return {
-        "success": True,
-        "team": class_name,
-        "access_code": access_code,
-        "terminal": terminal_msg,
-        "result": access_code  # <-- ADD THIS EXACT LINE
-    }
+        return {
+            "success": False, 
+            "team": "NONE", # <-- CRITICAL: This keeps the UI completely blank!
+            "access_code": "ERROR", 
+            "terminal": f"[TARS]: ERROR. Invalid artifact or low confidence ({int(confidence*100)}%).", 
+            "result": "ERROR"
+        }
 
 if __name__ == "__main__":
     import uvicorn
